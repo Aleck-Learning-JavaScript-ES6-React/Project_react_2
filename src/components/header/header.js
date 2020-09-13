@@ -26,23 +26,44 @@ const HeaderLinks = styled.ul`
     }
 `;
 
+const LinkStyle=styled.a`
+    color: inherit;
+    text-decoration: none;
+    :visited {
+        text-decoration: none;
+        color: inherit;
+    }
+    :hover {
+        text-decoration: none;
+        color: inherit;
+    }
+    :focus {
+        text-decoration: none;
+        color: inherit;
+    }
+    :active {
+        text-decoration: none;
+        color: inherit;
+    }
+`;
+
 const Header = () => {
     return (
         <HeaderBlock>
             <HeaderTitle>
-                <a href="#">
+                <LinkStyle href="#">
                 Game of Thrones DB
-                </a>
+                </LinkStyle>
             </HeaderTitle>
             <HeaderLinks>
                 <li>
-                    <a href="#">Characters</a>
+                    <LinkStyle href="#">Characters</LinkStyle>
                 </li>
                 <li>
-                    <a href="#">Houses</a>
+                    <LinkStyle href="#">Houses</LinkStyle>
                 </li>
                 <li>
-                    <a href="#">Books</a>   
+                    <LinkStyle href="#">Books</LinkStyle>   
                 </li>
             </HeaderLinks>
         </HeaderBlock>
