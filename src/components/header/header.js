@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import {Link} from 'react-router-dom';
 
 const HeaderBlock = styled.div`
     display: flex;
@@ -26,44 +27,42 @@ const HeaderLinks = styled.ul`
     }
 `;
 
-const LinkStyle=styled.a`
-    color: inherit;
-    text-decoration: none;
-    :visited {
-        text-decoration: none;
-        color: inherit;
-    }
-    :hover {
-        text-decoration: none;
-        color: inherit;
-    }
-    :focus {
-        text-decoration: none;
-        color: inherit;
-    }
-    :active {
-        text-decoration: none;
-        color: inherit;
-    }
-`;
+// const LinkStyle=styled.a`
+//     color: inherit;
+//     text-decoration: none;
+//     :visited {
+//         text-decoration: none;
+//         color: inherit;
+//     }
+//     :hover {
+//         text-decoration: none;
+//         color: inherit;
+//     }
+//     :focus {
+//         text-decoration: none;
+//         color: inherit;
+//     }
+//     :active {
+//         text-decoration: none;
+//         color: inherit;
+//     }
+// `;
 
 const Header = () => {
     return (
         <HeaderBlock>
             <HeaderTitle>
-                <LinkStyle href="#">
-                Game of Thrones DB
-                </LinkStyle>
+                <Link to='/'>Game of Thrones DB</Link>
             </HeaderTitle>
             <HeaderLinks>
                 <li>
-                    <LinkStyle href="#">Characters</LinkStyle>
+                    <Link to='/characters/'>Characters</Link>
                 </li>
                 <li>
-                    <LinkStyle href="#">Houses</LinkStyle>
+                    <Link to='/houses/'>Houses</Link>
                 </li>
                 <li>
-                    <LinkStyle href="#">Books</LinkStyle>   
+                    <Link to='/books/'>Books</Link>   
                 </li>
             </HeaderLinks>
         </HeaderBlock>
