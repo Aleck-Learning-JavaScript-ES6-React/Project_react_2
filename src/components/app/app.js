@@ -4,7 +4,7 @@ import Header from '../header';
 import RandomChar from '../randomChar';
 import ErrorMessage from '../errorMessage/errorMessage';
 import gotService from '../../services/gotService';
-import {BrowserRouter as Router, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Link, Switch} from 'react-router-dom';
 import styled from 'styled-components';
 import CharactersPage from '../pages/charactersPage';
 import BooksPage from '../pages/booksPage';
@@ -18,6 +18,15 @@ const BodyStyle = styled.div`
     background-size: cover;
     height: 1000px;
 `;
+
+function NoMatch() {
+    return (
+        <>
+            <h1><Badge color="danger">This page is not exist!</Badge></h1>
+            <Link to='/'>To the main page</Link>    
+        </>
+    )
+}
 
 export default class App extends Component {
     gotService = new gotService();
@@ -42,7 +51,7 @@ export default class App extends Component {
     }
 
     render () {
-        const content = this.state.visibleRandomChar ? <RandomChar/> : null;
+        const content = this.state.visibleRandomChar ? <RandomChar /> : null;
         
         if (this.state.error) {
             return <ErrorMessage/>
@@ -63,15 +72,18 @@ export default class App extends Component {
                                 <br/><br/>
                             </Col>
                         </Row>
-                        <Route path='/' exact component={() => <h1><Badge>Welcome to GOT DB</Badge></h1>} />
-                        <Route path='/characters' component={CharactersPage}/>                        
-                        <Route path='/houses' component={HousesPage}/>
-                        <Route path='/books' exact component={BooksPage}/>
-                        <Route path='/books/:id' render={
-                            ({match}) => {
-                                const {id} = match.params;
-                            return <BooksItem bookId={id} />} 
-                        }/>
+                        <Switch>
+                            <Route path='/' exact component={() => <h1><Badge>Welcome to GOT DB</Badge></h1>} />
+                            <Route path='/characters' component={CharactersPage}/>                        
+                            <Route path='/houses' component={HousesPage}/>
+                            <Route path='/books' exact component={BooksPage}/>
+                            <Route path='/books/:id' render={
+                                ({match}) => {
+                                    const {id} = match.params;
+                                return <BooksItem bookId={id} />} 
+                            }/>
+                            <Route path="*"><NoMatch /></Route>
+                        </Switch>
                     </Container>
                 </BodyStyle>
             </Router>

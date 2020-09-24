@@ -1,8 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import gotService from '../../services/gotService';
 import Spinner from '../spinner/spinner';
 import ErrorMessage from '../errorMessage/errorMessage';
+import PropTypes from 'prop-types';
 
 const RandomBlockStyle=styled.div`
     border-radius: 5px;
@@ -19,44 +20,65 @@ const TermStyle=styled.span`
     font-weight: bold;
 `;
 
-export default function RandomChar()  {
-    const getData = new gotService();
-    
-    const [char, updateList] = useState([]);
-    const [loading, loadingStatus] = useState(true);
-    const [error, errorStatus] = useState(false);
-
-    const onCharLoaded = (char) => {
-        updateList(char)
-        loadingStatus(false)
-        errorStatus(false)
-    }
-    
-    const onError = (err) => {
-        loadingStatus(false)
-        errorStatus(true)
+export default class RandomChar extends Component {
+    gotService = new gotService();
+    state = {
+        char: {},
+        loading: true,
+        error: false
     }
 
-    const updateChar = () => {
+    static defaultProps = {
+        interval: 10000
+    }
+
+    static propTypes = {
+        interval: PropTypes.number
+    }
+
+    onCharLoaded = (char) => {
+        this.setState({
+            char,
+            loading: false,
+            error: false
+        });
+    }
+    
+    onError = (err) => {
+        this.setState({
+            error: true,
+            loading: false
+        })
+    }
+
+    updateChar = () => {
         const id=Math.floor(Math.random()*2001+20); //20-2020
-        getData.getCharacter(id)
-            .then(onCharLoaded)
-            .catch(onError);
+        this.gotService.getCharacter(id)
+            .then(this.onCharLoaded)
+            .catch(this.onError);
     }
 
-    useEffect(() => {
-        updateChar();
-        const timerID = setInterval(updateChar,10000);   
-        return () => {clearInterval(timerID)}; 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-    
-    function render() {
-        
+    componentDidMount() {
+        this.updateChar();
+        this.timerID = setInterval(this.updateChar,this.props.interval);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerID);
+    }
+
+    componentDidCatch() {
+        this.setState({
+            error: true
+        })
+    }
+
+    render() {
+        const {char, loading, error} = this.state;
         const errorMessage = error ?  <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error) ? <View char={char}/> : null;
-
+            
         return (
             <RandomBlockStyle>
                 {errorMessage}
@@ -65,8 +87,6 @@ export default function RandomChar()  {
             </RandomBlockStyle>
         );
     }
-
-    return render();    
 }
 
 const View = ({char}) => {

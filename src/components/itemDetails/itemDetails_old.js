@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import Spinner from '../spinner/spinner';
 import ErrorMessage from '../errorMessage/errorMessage';
@@ -34,45 +34,69 @@ const Field = ({char, field, label}) => {
 };
 export {Field};
 
-export default function ItemDetails({charId, getData, children}) {
-    console.log(children);
-    const [char, updateChar] = useState([]);
-    const [loading, loadingStatus] = useState(true);
-    const [error, errorStatus] = useState(false);
-    
-    const onCharLoaded = (char) => {
-        updateChar(char)
-        loadingStatus(false)
-        errorStatus(false)
-    }
-    
-    const onError = (err) => {
-        loadingStatus(false)
-        errorStatus(true)
+export default class ItemDetails extends Component {
+    state = {
+        char: null,
+        loading: true,
+        error: false
     }
 
-    useEffect(() => {
-        loadingStatus(true)
-        errorStatus(false)
-        
+    onCharLoaded = (char) => {
+        this.setState({
+            char,
+            loading: false,
+            error: false
+        });
+    }
+    
+    onError = (err) => {
+        this.setState({
+            error: true,
+            loading: false
+        })
+    }
+
+    updateChar() {
+        this.setState({ 
+            loading: true,
+            error: false
+        })
+
+        const {charId, getData} = this.props;
         if (!charId) {
             return;
         }
         
         getData(charId)    
-        .then(onCharLoaded)
-        .catch(onError);
-    },[charId, getData])
-    
-    function render() {
-       
-        if (!char || char.length===0) {
+            .then(this.onCharLoaded)
+            .catch(this.onError);             
+    }
+
+    componentDidMount() {
+        this.updateChar(); 
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.charId !== prevProps.charId) {
+            this.updateChar();
+        }
+    }
+
+    componentDidCatch() {
+        this.setState({
+            error: true
+        })
+    }
+
+    render() {
+        if (!this.state.char) {
             return <SelectErrorStyle>Please select a character</SelectErrorStyle>
         }
         
+        const {char, loading, error} = this.state;        
         const errorMessage = error ?  <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? <View char={char} children={children}/> : null;
+        const content = !(loading || error) ? <View char={char} props={this.props}/> : null;
        
         return (
             <ItemDetailsStyle>
@@ -82,11 +106,9 @@ export default function ItemDetails({charId, getData, children}) {
             </ItemDetailsStyle>
         );
     }
-
-    return render();
 }
 
-const View = ({char,children}) => {
+const View = ({char,props}) => {
     
     const {name} = char;
     
@@ -95,7 +117,7 @@ const View = ({char,children}) => {
             <h4>{name}</h4>
             <ul className="list-group list-group-flush">
                 {
-                    React.Children.map(children, (child) => {
+                    React.Children.map(props.children, (child) => {
                         return React.cloneElement(child, {char})
                     })
                 }

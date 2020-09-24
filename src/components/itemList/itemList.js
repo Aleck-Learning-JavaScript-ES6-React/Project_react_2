@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 import styled from 'styled-components';
 import Spinner from '../spinner/spinner';
@@ -12,70 +12,52 @@ const ListGroupItemStyle=styled(ListGroupItem)`
     cursor: pointer;
 `;
 
-export default class ItemList extends Component {
-   
-    state = {
-        itemList: null,
-        error: false
-    }
-
-    onitemListLoaded = (itemList) => {
-        this.setState({
-            itemList,
-            error: false
-        });
+export default function ItemList({getData, onItemSelected, renderItem}) {
+    const [itemList, updateList] = useState([]);
+    const [error, errorStatus] = useState(false);
+    
+    const onitemListLoaded = (itemList) => {
+        updateList(itemList)
+        errorStatus(false)
     }
     
-    onError = (err) => {
-        this.setState({
-            error: true
-        })
+    const onError = () => {
+       errorStatus(true)
     }
 
-    componentDidMount() {
-        const {getData} = this.props;
-
+    useEffect(() => {
         getData()
-            .then(this.onitemListLoaded)
-            .catch(this.onError);
-    }
+            .then(onitemListLoaded)
+            .catch(onError);    
+    }, [getData])
 
-    renderItems(arr) {
+    function renderItems(arr) {
         return arr.map((item) => {
             const {id} = item;
-            const label = this.props.renderItem(item);
+            const label = renderItem(item);
             
             return (
                 <ListGroupItemStyle key={id}
-                onClick={() => this.props.onItemSelected(id)}>
+                onClick={() => onItemSelected(id)}>
                     {label}
                 </ListGroupItemStyle>        
             )
         })
     }
-
-    componentDidCatch() {
-        this.setState({
-            error: true
-        })
+       
+    if (error) {
+        return <ErrorMessage/>
     }
-
-    render() {
-        const {itemList, error} = this.state;
-        
-        if (error) {
-            return <ErrorMessage/>
+        if (!itemList) {
+            return <Spinner/>
         }
-         if (!itemList) {
-             return <Spinner/>
-         }
 
-        const content = this.renderItems(itemList);
+    const content = renderItems(itemList);
 
-        return (
-            <ItemListStyle>
-                {content} 
-            </ItemListStyle>
-        );
-    }
+    return (
+        <ItemListStyle>
+            {content} 
+        </ItemListStyle>
+    );
+   
 }
